@@ -1,13 +1,11 @@
 import pandas as pd
-from financial_analysis import data
+from financial_analysis.data import read_data
 import matplotlib.pyplot as plt
 
 
 # close_to_daily_return (確認資料為順時間排序)
 def daily_return(df, start=None, end=None):
-    df.set_index(pd.to_datetime(df['Date']), inplace=True)
-    df = df.sort_index()
-    df.drop('Date', axis=1, inplace=True)
+    df = df[['close']]
     df = df.loc[start:end]
     dr = df.pct_change(1)
     dr = dr.dropna()
@@ -37,12 +35,12 @@ def mdd(dr):
     return result
 
 
-spx = daily_return(data.read_data('spx', 'ods'))
-spx_mdd = mdd(spx)
-spx_std = r_std(spx)
-print(f'最大跌幅 {spx_mdd["mdd"]*100:3.2f}%, 起跌日 {spx_mdd["start"]:%Y-%m-%d}, 止跌日 {spx_mdd["end"]:%Y-%m-%d}, '
+spx_dr = daily_return(read_data('spx'))
+spx_mdd = mdd(spx_dr)
+spx_std = r_std(spx_dr)
+print(f'最大跌幅 {spx_mdd["mdd"]:3.2%}, 起跌日 {spx_mdd["start"]:%Y-%m-%d}, 止跌日 {spx_mdd["end"]:%Y-%m-%d}, '
       f'下跌時間 {spx_mdd["days"]}')
-print(f'日波動 {spx_std["daily_std"]*100:3.2f}%, 年化波動 {spx_std["annual_std"]*100:3.2f}%')
+print(f'日波動 {spx_std["daily_std"]:3.2%}, 年化波動 {spx_std["annual_std"]:3.2%}')
 
 # plt.plot(spx_std['rolling_annual_std'])
 # plt.show()

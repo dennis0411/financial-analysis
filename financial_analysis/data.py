@@ -17,4 +17,10 @@ def read_data(symbol='spx', style='csv'):
         df = read_ods(f'{symbol}.ods')
     else:
         df = pd.read_csv(f'{symbol}.csv')
+    df.set_index(pd.to_datetime(df['Date']), inplace=True)
+    df = df.sort_index()
+    df.drop('Date', axis=1, inplace=True)
     return df
+
+
+
