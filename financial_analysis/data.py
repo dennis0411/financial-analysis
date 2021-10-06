@@ -2,6 +2,10 @@ from sklearn import datasets
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from pandas_ods_reader import read_ods
+import numpy as np
+import requests
+import xlsxwriter
+import math
 
 iris = datasets.load_iris()
 X = iris.data
@@ -21,6 +25,10 @@ def read_data(symbol='spx', style='csv'):
     df = df.sort_index()
     df.drop('Date', axis=1, inplace=True)
     return df
+
+
+
+
 
 
 

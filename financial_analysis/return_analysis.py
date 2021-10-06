@@ -35,12 +35,35 @@ def mdd(dr):
     return result
 
 
-spx_dr = daily_return(read_data('spx'))
-spx_mdd = mdd(spx_dr)
-spx_std = r_std(spx_dr)
-print(f'最大跌幅 {spx_mdd["mdd"]:3.2%}, 起跌日 {spx_mdd["start"]:%Y-%m-%d}, 止跌日 {spx_mdd["end"]:%Y-%m-%d}, '
-      f'下跌時間 {spx_mdd["days"]}')
-print(f'日波動 {spx_std["daily_std"]:3.2%}, 年化波動 {spx_std["annual_std"]:3.2%}')
+def sharpe(dr):
+    ar = dr.mean() * 252
+    std = dr.std() * 252 ** 0.5
+    sp = ar / std
+    return sp[0]
+
+
+def sortino(dr):
+    ar = dr.mean() * 252
+    std_s = dr[dr < 0].std() * 252 ** 0.5
+    sp = ar / std_s
+    return sp[0]
+
+
+start = '2018-10-01'
+end = '2021-10-01'
+
+if __name__ == '__main__':
+    spx_dr = daily_return(read_data('spx'), start=start, end=end)
+
+    spx_mdd = mdd(spx_dr)
+    spx_std = r_std(spx_dr)
+
+    print(f'回測開始於 {start}, 回測結束於 {end}')
+    print(f'最大跌幅 {spx_mdd["mdd"]:3.2%}, 起跌日 {spx_mdd["start"]:%Y-%m-%d}, 止跌日 {spx_mdd["end"]:%Y-%m-%d}, '
+          f'下跌時間 {spx_mdd["days"]}')
+    print(f'日波動 {spx_std["daily_std"]:3.2%}, 年化波動 {spx_std["annual_std"]:3.2%}')
+    print(f'夏普比率 : {sharpe(spx_dr):.2f}')
+    print(f'索提諾比率 : {sortino(spx_dr):.2f}')
 
 # plt.plot(spx_std['rolling_annual_std'])
 # plt.show()
