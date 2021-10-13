@@ -6,9 +6,14 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.datasets import make_regression
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import BernoulliNB
 from sklearn.metrics import mean_squared_error
 
-X, y = make_regression(n_samples=1000, n_features=1, noise=20)
+from financial_analysis import data
+
+X, y = make_regression(n_samples=1000, n_features=1, noise=30)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
@@ -68,13 +73,58 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 
 scores = []
 
-for degree in range(1, 5):
+for degree in range(1, 6):
     model = make_pipeline(PolynomialFeatures(degree), linear_model.LinearRegression())
     model.fit(X_train, y_train)
     scores.append((model.score(X_test, y_test)))
 
 print(scores)
 
-
 # 多變量回歸
+A, b = make_regression(n_samples=1000, n_features=5, noise=50)
+A_train, A_test, b_train, b_test = train_test_split(A, b, test_size=0.3, random_state=0)
+multiregr = linear_model.LinearRegression()
+multiregr.fit(A_train, b_train)
+print(multiregr.score(A_train, b_train), multiregr.score(A_test, b_test))
+
+# Lasso & Ridge
+A, b = make_regression(n_samples=1000, n_features=10, noise=10)
+A_train, A_test, b_train, b_test = train_test_split(A, b, test_size=0.3, random_state=0)
+
+clf_lasso = linear_model.Lasso(alpha=0.1)
+clf_lasso.fit(A_train, b_train)
+
+clf_Ridge = linear_model.Ridge(alpha=0.1)
+clf_Ridge.fit(A_train, b_train)
+
+scores = []
+
+for degree in range(1, 6):
+    model = make_pipeline(PolynomialFeatures(degree), clf_Ridge)
+    model.fit(X_train, y_train)
+    scores.append((model.score(X_test, y_test)))
+
+print(scores)
+
+# Logistic Regression
+X_train, X_test, y_train, y_test = train_test_split(data.X, data.y, test_size=0.3)
+logistic = linear_model.LogisticRegression()
+logistic.fit(X_train, y_train)
+logistic.predict(X_test)
+logistic.predict_proba(X_test)
+print(logistic.score(X_test, y_test))
+
+# Bayesian Classifier
+X_train, X_test, y_train, y_test = train_test_split(data.X, data.y, test_size=0.3)
+modelg=GaussianNB()  # 高斯適用連續變數
+modelg.fit(X_train, y_train)
+print(modelg.score(X_test, y_test))
+
+modelm=MultinomialNB()  # 多項式貝氏分類適用離散變數
+modelm.fit(X_train, y_train)
+print(modelm.score(X_test, y_test))
+
+modelb=BernoulliNB(binarize=[5.8, 3, 4.35, 1.3])  # 柏努力貝氏分類適用二元資料，特徵不是 0 就是 1，binarize 代表切分基準
+modelb.fit(X_train, y_train)
+print(modelb.score(X_test, y_test))
 
